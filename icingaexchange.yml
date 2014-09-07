@@ -1,0 +1,19 @@
+name: isms
+description: "file:///README.md"
+url: "https://www.netways.org/projects/plugins"
+tags: ~
+vendor: NETWAYS
+target: Temperature
+type: Plugin
+license: gplv2
+releases: 
+  - 
+    name: 1.0
+    description: "1.0 Release"
+    files: 
+      - 
+        name: isms.pl
+        url: "file:///isms.pl"
+        description: none
+        checksum: 
+
