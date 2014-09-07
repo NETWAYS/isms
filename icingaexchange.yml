@@ -2,9 +2,9 @@ name: isms
 description: "file:///README.md"
 url: "https://www.netways.org/projects/plugins"
 tags: ~
-vendor: NETWAYS
-target: Temperature
-type: Plugin
+vendor: Multi-Tech,NETWAYS
+target: SMS
+type: Notification
 license: gplv2
 releases: 
   - 
@@ -12,8 +12,8 @@ releases:
     description: "1.0 Release"
     files: 
       - 
-        name: isms.pl
-        url: "file:///isms.pl"
+        name: isms.tar.gz
+        url: "file:///isms.tar.gz"
         description: none
-        checksum: 
+        checksum: 549880c7fb6bd2c90c9059f2067d40e3
 
