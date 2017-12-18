@@ -1,0 +1,15 @@
+###########################################################################################
+#  SMSFinder GSM Signal Strength
+###########################################################################################
+
+define ngraph{
+	service_name		smsfinder
+	graph_perf_regex	strength=(\d+)
+	graph_value		strength
+	graph_units		percent
+	graph_legend		GSM signal strength in percent
+	rrd_plottype		LINE2
+	rrd_color		0080C0
+	}
+
+# [EOF]
