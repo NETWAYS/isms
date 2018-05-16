@@ -190,7 +190,7 @@ sub printResultAndExit {
 
     my $exitVal = shift;
 
-    print "@_" if (defined @_);
+    print "@_";
 
     print "\n";
 
