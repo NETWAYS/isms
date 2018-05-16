@@ -47,6 +47,7 @@
 # Nagios and the Nagios logo are registered trademarks of Ethan Galstad.
 #
 # Changelog:
+# Version: 1.0.1: Bugfixes
 # Version 0.4: Added support for firmware version pattern like /\d+.\d+.d+/
 # Version 0.3: Unknown
 # Version 0.2: Unknown
@@ -101,7 +102,7 @@ our @state = ('OK', 'WARNING', 'CRITICAL', 'UNKNOWN');
 my $HowIwasCalled           = "$0 @ARGV";
 
 # version string
-my $version                 = '0.4';
+my $version                 = '1.0.1';
 
 my $basename                = basename ($0);
 
