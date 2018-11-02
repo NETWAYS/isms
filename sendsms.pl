@@ -279,19 +279,14 @@ sub justASCII {
 
 sub httpGet {
     my $document = shift;
-    my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
-    if ($remote) {
-        $remote->autoflush(1);
-        print $remote "GET $document HTTP/1.1\015\012\015\012";
-        #my $http_answer = join(' ', (<$remote>));
-        my $http_answer;
-        while (<$remote>) {
-            $http_answer .= $_;
-        }
-        close $remote;
-        $http_answer =~ tr/\n\r/ /;
-        if ($verbose) { print 'SMSFinder response  : ' . $http_answer . "\n"; }
-        return $http_answer;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("iSMS-Plugin/0.5");
+    my $req = HTTP::Request->new(GET => "http://$hostaddress$document");
+    my $res = $ua->request($req);
+
+    if ($res->is_success) {
+        if ($verbose) { print 'SMSFinder response  : ' . $res->content . "\n"; }
+        return $res->content;
     } else {
         return undef;
     }
