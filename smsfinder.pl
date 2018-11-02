@@ -2,39 +2,37 @@
 # nagios: -epn
 #
 # COPYRIGHT:
-#  
-# This software is Copyright (c) 2009 NETWAYS GmbH, Birger Schmidt,
-#                                2013 NETWAYS GmbH, Achim Ledermüller
-#                                <info@netways.de>
+#
+# This software is Copyright (c) 2009-2018 NETWAYS GmbH <support@netways.de>
 #      (Except where explicitly superseded by other copyright notices)
-# 
+#
 # LICENSE:
-# 
+#
 # This work is made available to you under the terms of Version 2 of
 # the GNU General Public License. A copy of that license should have
 # been provided with this software, but in any event can be snarfed
 # from http://www.fsf.org.
-# 
+#
 # This work is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301 or visit their web page on the internet at
 # http://www.fsf.org.
-# 
-# 
+#
+#
 # CONTRIBUTION SUBMISSION POLICY:
-# 
+#
 # (The following paragraph is not intended to limit the rights granted
 # to you to modify and distribute this software under the terms of
 # the GNU General Public License and is only of importance to you if
 # you choose to contribute your changes and enhancements to the
 # community by submitting them to NETWAYS GmbH.)
-# 
+#
 # By intentionally submitting any modifications, corrections or
 # derivatives to this work, or any other work intended for use with
 # this Software, to NETWAYS GmbH, you confirm that
@@ -240,12 +238,12 @@ sub urldecode {
     return $str;
 }
 
-sub prettydate { 
-# usage: $string = prettydate( [$time_t] ); 
-# omit parameter for current time/date 
-    @_ = localtime(shift || time); 
-    return(sprintf("%04d/%02d/%02d %02d:%02d:%02d", $_[5]+1900, $_[4]+1, $_[3], @_[2,1,0])); 
-} 
+sub prettydate {
+# usage: $string = prettydate( [$time_t] );
+# omit parameter for current time/date
+    @_ = localtime(shift || time);
+    return(sprintf("%04d/%02d/%02d %02d:%02d:%02d", $_[5]+1900, $_[4]+1, $_[3], @_[2,1,0]));
+}
 
 sub prettyTime {
 
@@ -277,12 +275,12 @@ sub justASCII {
         chr($_) =~ /[[:cntrl:]]/ ? '' :     # and control characters too
         chr($_)                             # just the ASCII as themselves
         } unpack("U*", $_[0]));                     # unpack Unicode characters
-}  
+}
 
 sub httpGet {
     my $document = shift;
     my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
-    if ($remote) { 
+    if ($remote) {
         $remote->autoflush(1);
         print $remote "GET $document HTTP/1.1\015\012\015\012";
         #my $http_answer = join(' ', (<$remote>));
@@ -301,24 +299,24 @@ sub httpGet {
 
 sub httpPostLogin {
     my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
-    if ($remote) { 
+    if ($remote) {
         $remote->autoflush(1);
         my $poststring = "fileName=index.html&userName=$user&password=$pass";
-        print $remote 
+        print $remote
         "POST /cgi-bin/postquery.cgi HTTP/1.1\015\012" .
-        "Content-Length: " .  length($poststring) .  "\015\012" . 
-        "Content-Type: application/x-www-form-urlencoded\015\012" . 
-        "\015\012" . 
+        "Content-Length: " .  length($poststring) .  "\015\012" .
+        "Content-Type: application/x-www-form-urlencoded\015\012" .
+        "\015\012" .
         $poststring;
         close $remote;
         my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
         if ($remote) {
             print $remote "GET /index.html?0 HTTP/1.1\015\012\015\012";
-            while ( <$remote> ) { 
-                if (/url="(?:home|smsSend).html\?(\d+)"/) { 
+            while ( <$remote> ) {
+                if (/url="(?:home|smsSend).html\?(\d+)"/) {
                     $loginID = $1;
                     if ($verbose) { print 'SMSFinder login ID : ' . $loginID . "\n"; }
-                    push (@perfdata, "loginID=$loginID");   
+                    push (@perfdata, "loginID=$loginID");
                     last;
                 }
             }
@@ -334,7 +332,7 @@ sub httpGetLogout {
     my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
     if ($remote) {
         print $remote "GET /logout.html?$loginID HTTP/1.1\015\012\015\012";
-        while ( <$remote> ) { 
+        while ( <$remote> ) {
             if ($verbose) { print 'SMSFinder logout : ' . $_ . "\n"; }
         }
     }
@@ -362,13 +360,13 @@ sub httpPostReboot {
         $remote->autoflush(1);
         # Save to flash before rebooting
         my $poststring = "filename=save_restartLoading.html%3F$loginID&commandVal=set+save_conf&userid=$loginID";
-        print $remote 
+        print $remote
         "POST /cgi-bin/postquery.cgi HTTP/1.1\015\012" .
-        "Content-Length: " .  length($poststring) .  "\015\012" . 
-        "Content-Type: application/x-www-form-urlencoded\015\012" . 
+        "Content-Length: " .  length($poststring) .  "\015\012" .
+        "Content-Type: application/x-www-form-urlencoded\015\012" .
         "\015\012" .
         $poststring;
-        while ( <$remote> ) { 
+        while ( <$remote> ) {
             if ($verbose) { print 'SMSFinder save to flash : ' . $_; }
         }
         close $remote;
@@ -376,13 +374,13 @@ sub httpPostReboot {
         # Reboot
         $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "http(80)");
         $poststring = "filename=save_restartLoading.html%3F$loginID&commandVal=set+reboot_box&userid=$loginID";
-        print $remote 
+        print $remote
         "POST /cgi-bin/postquery.cgi HTTP/1.1\015\012" .
-        "Content-Length: " .  length($poststring) .  "\015\012" . 
-        "Content-Type: application/x-www-form-urlencoded\015\012" . 
+        "Content-Length: " .  length($poststring) .  "\015\012" .
+        "Content-Type: application/x-www-form-urlencoded\015\012" .
         "\015\012" .
         $poststring;
-        while ( <$remote> ) { 
+        while ( <$remote> ) {
             if ($verbose) { print 'SMSFinder reboot : ' . $_; }
         }
         close $remote;
@@ -416,19 +414,19 @@ sub httpPostReboot {
 sub telnetRW {
     my $command = shift;
     my $remote = IO::Socket::INET->new(Proto => "tcp", PeerAddr => $hostaddress, PeerPort => "5000");
-    if ($remote) { 
+    if ($remote) {
         $remote->autoflush(1);
         print "$command\n";
         print $remote "$command\015";
         my $answer;
         my $char;
-        while ($remote->read($char,1)) { 
-            $answer .= $char; 
+        while ($remote->read($char,1)) {
+            $answer .= $char;
             #print ".$char";
             if ($answer =~ /(OK|ERROR)(.*)\015\012/) {
                 last;
             }
-        } 
+        }
         close $remote;
         $answer =~ tr/\n\r/ /;
         if ($verbose) { print 'SMSFinder response  : ' . $answer . "\n"; }
@@ -519,7 +517,7 @@ sub getCachedObjectByProp {
 
 }
 
-# query DB and return a hash ( or array 
+# query DB and return a hash ( or array
 sub queryDB
 {
 
@@ -575,8 +573,8 @@ sub queryDB
 if ($basename eq 'email2sms.pl') {
 # convert e-mail to SMS
     open (LOG, ">>".$logfile) or *LOG = *STDERR;
-    print LOG prettydate(); 
-    print LOG " SMSemail: $HowIwasCalled\n"; 
+    print LOG prettydate();
+    print LOG " SMSemail: $HowIwasCalled\n";
     close LOG unless *LOG eq *STDERR;
 
     # use Mail::Internet and Mail::Header to parse e-mail message
@@ -608,8 +606,8 @@ $message =~ s/\s\s+/ /g;#  and collapse whitespace
 if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
 # sendsms
     open (LOG, ">>".$logfile) or *LOG = *STDERR;
-    print LOG prettydate(); 
-    print LOG " SMSsend: $HowIwasCalled\n"; 
+    print LOG prettydate();
+    print LOG " SMSsend: $HowIwasCalled\n";
     close LOG unless *LOG eq *STDERR;
 
     if ($use_db and not eval "use DBI;1;") {
@@ -617,29 +615,29 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
         exit 3;
     }
 
-    unless ($hostaddress) { 
+    unless ($hostaddress) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: hostaddress missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
-    unless ($number) { 
+    unless ($number) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: number missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
-    unless ($user) { 
+    unless ($user) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: username missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
-    unless ($pass) { 
+    unless ($pass) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: password missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
 
     #my $msg = urlencode("@_");
@@ -709,7 +707,7 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
         #my $response = get $url;
         my $response = httpGet($document);
 
-        push (@msg, '"' . $messagepart . '" to ' . $number . ' via ' . $hostaddress); 
+        push (@msg, '"' . $messagepart . '" to ' . $number . ' via ' . $hostaddress);
         if (defined $response) {
             if ($response =~ /ID: (\d+)/) {
                 my $apimsgid = $1;
@@ -726,7 +724,7 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
                                 $statuscode = $2;
                                 if ($statuscode == 0) {
                                     # 0='Done'
-                                    push (@msg, 'send successfully. MessageID: ' . $apimsgid); 
+                                    push (@msg, 'send successfully. MessageID: ' . $apimsgid);
                                     $exitVal = 0; # set global ok
                                     last;
                                 } elsif ($statuscode == 2 or $statuscode == 3) {
@@ -746,7 +744,7 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
                                     last;
                                 } elsif ($1 eq 'Err') {
                                     push (@msg, join ('', ' failed. Error: ',
-                                            (defined $smsErrorCodes{$statuscode}) ? $smsErrorCodes{$statuscode} : 'unknown' )); 
+                                            (defined $smsErrorCodes{$statuscode}) ? $smsErrorCodes{$statuscode} : 'unknown' ));
                                     $exitVal = 2; # set global critical
                                     last;
                                 } else {
@@ -764,11 +762,11 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
                 } else {
                     # because Nagios notofication is blocking, we dont wait for message to be send.
                     # not even until timeout
-                    push (@msg, 'queued successfully. MessageID: ' . $apimsgid); 
+                    push (@msg, 'queued successfully. MessageID: ' . $apimsgid);
                     $exitVal = 0; # set global ok
                 }
             } elsif ($response =~ /Err: (\d+)/) {
-                push (@msg, join(' ', ' failed. Error:',  (defined $smsErrorCodes{$1}) ? $smsErrorCodes{$1} : 'unknown' )); 
+                push (@msg, join(' ', ' failed. Error:',  (defined $smsErrorCodes{$1}) ? $smsErrorCodes{$1} : 'unknown' ));
                 $exitVal = 2; # set global critical
             } else {
                 push (@msg, 'failed. With an unknown response: ' . $response);
@@ -779,32 +777,32 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
             $exitVal = 2; # set global critical
         }
         open (LOG, ">>".$logfile) or *LOG = *STDERR;
-        print LOG prettydate(); 
+        print LOG prettydate();
         if (defined $contactgroup) { push (@msg, 'contactgroup: "' . "$contactgroup" . '"'); }
-        print LOG ' SMSsend: ' . join(' ', @msg) . "\n"; 
+        print LOG ' SMSsend: ' . join(' ', @msg) . "\n";
         close LOG unless *LOG eq *STDERR;
     }
-    printResultAndExit ($exitVal, join(' ', @msg)); 
+    printResultAndExit ($exitVal, join(' ', @msg));
 }
 
 elsif ($basename eq 'smsreboot.pl') {
-    unless ($hostaddress) { 
+    unless ($hostaddress) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: hostaddress missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
-    unless ($user) { 
+    unless ($user) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: username missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
-    unless ($pass) { 
+    unless ($pass) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: password missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
     unless (httpPostLogin) {
         printResultAndExit (2, 'CRITICAL: SMS login failed!|');
@@ -816,12 +814,12 @@ elsif ($basename eq 'smsreboot.pl') {
 }
 
 elsif ($basename eq 'check_smsfinder.pl') {
-#check_smsfinder; 
-    unless ($hostaddress) { 
+#check_smsfinder;
+    unless ($hostaddress) {
         mypod2usage({
                 -msg     => "\n" . 'ERROR: hostaddress missing!' . "\n",
                 -verbose => 1,
-                -exitval => 3 }); 
+                -exitval => 3 });
     }
 
     unless (httpPostLogin) {
@@ -845,7 +843,7 @@ elsif ($basename eq 'check_smsfinder.pl') {
                 $firmware = "$parts[0].$parts[1]";
             }
         } else {
-            printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response); 
+            printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response);
         }
     }
 
@@ -853,9 +851,9 @@ elsif ($basename eq 'check_smsfinder.pl') {
         if (defined $response2) {
             if ($response2 =~ /200 OK.*?Signal Strength.*?>\S+?([0-9]+).*?/)    {
                 my $strength = $1;
-                if ($strength > 0) {    
+                if ($strength > 0) {
                     $strength = sprintf("%.1f",($strength * 100) / 31);
-                    push (@perfdata, "strength=$strength\%;$warning;$critical;;");  
+                    push (@perfdata, "strength=$strength\%;$warning;$critical;;");
                     push (@msg, "GSM signal strength is $strength\%");
                     if ($strength < $critical){
                         printResultAndExit (2, 'CRITICAL: ' . join(' - ', @msg) . '|' . join (' ', @perfdata));
@@ -869,21 +867,21 @@ elsif ($basename eq 'check_smsfinder.pl') {
                 {
                     push (@msg, "No GSM signal, maybe not connected to the Network.");
                     $exitVal = 2;
-                    printResultAndExit ($exitVal, 'CRITICAL: ' . join(' - ', @msg) . '|' . join (' ', @perfdata)); 
-                } 
+                    printResultAndExit ($exitVal, 'CRITICAL: ' . join(' - ', @msg) . '|' . join (' ', @perfdata));
+                }
             } else {
-                printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response2); 
+                printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response2);
             }
         } else {
-            printResultAndExit (2, 'CRITICAL: no response from ' . $hostaddress . ' within ' . $timeout . ' seconds.'); 
+            printResultAndExit (2, 'CRITICAL: no response from ' . $hostaddress . ' within ' . $timeout . ' seconds.');
         }
     } else {
         if (defined $response) {
             if ($response =~ /200 OK.*?Product Model Number.*?>(\S+?)<.*Firmware Version.*?>(\S+?)<.*MAC Address.*?Signal Strength\s*<.*?>(\d+)\s*<.*?Live Details/) {
                 my $strength = $3;
-                if ($strength > 0) {    
+                if ($strength > 0) {
                     $strength = sprintf("%.1f",($strength * 100) / 31);
-                    push (@perfdata, "strength=$strength\%;$warning;$critical;;");  
+                    push (@perfdata, "strength=$strength\%;$warning;$critical;;");
                     push (@msg, "GSM signal strength is $strength\%");
                     if ($strength < $critical){
                         $exitVal = 2;
@@ -893,14 +891,14 @@ elsif ($basename eq 'check_smsfinder.pl') {
                         $exitVal = 0;
                     }
                     push (@msg, "model: $1", "firmware: $2");
-                    printResultAndExit ($exitVal, $state[$exitVal].': ' . join(' - ', @msg) . '|' . join (' ', @perfdata)); 
+                    printResultAndExit ($exitVal, $state[$exitVal].': ' . join(' - ', @msg) . '|' . join (' ', @perfdata));
                 }else {
                     push (@msg, "No GSM signal, maybe not connected to the Network.");
                     push (@msg, "model: $1", "firmware: $2");
-                    printResultAndExit (2, 'CRITICAL: ' . join(' - ', @msg) . '|' . join (' ', @perfdata)); 
+                    printResultAndExit (2, 'CRITICAL: ' . join(' - ', @msg) . '|' . join (' ', @perfdata));
                 }
             } else {
-                printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response); 
+                printResultAndExit (2, "CRITICAL: $hostaddress SMSFinder returned bad response. \n" . $response);
             }
         }
     }
@@ -908,7 +906,7 @@ elsif ($basename eq 'check_smsfinder.pl') {
 
 elsif ($basename eq 'smsack.cgi') {
     my $postdata;
-    read(STDIN, $postdata, $ENV{'CONTENT_LENGTH'}) 
+    read(STDIN, $postdata, $ENV{'CONTENT_LENGTH'})
     if (defined $ENV{'CONTENT_LENGTH'}) or read(STDIN, $postdata, 1000);
 
     # extract the XML data
@@ -916,7 +914,7 @@ elsif ($basename eq 'smsack.cgi') {
     $postdata =~ s/^XMLDATA=//;
 
 
-    $postdata = urldecode($postdata); 
+    $postdata = urldecode($postdata);
     $postdata =~ s/\012/ /g;
     $postdata =~ s/\015/ /g;
 
@@ -926,7 +924,7 @@ elsif ($basename eq 'smsack.cgi') {
         *LOG = *STDERR;
     }
 
-    print LOG prettydate() . ' SMSreceived: ' . $postdata . "\n"; 
+    print LOG prettydate() . ' SMSreceived: ' . $postdata . "\n";
 
 
     httpDie ('Invalid XML Format') unless ($postdata =~ m/^\s*<\?xml .*>/i);
@@ -946,7 +944,7 @@ elsif ($basename eq 'smsack.cgi') {
     my $service = '';
     my $alerttype = 'HostAlert';
 
-    # check new status 
+    # check new status
     if ($Message =~ m/$ok/) {
         $status="OK";
     } elsif ($Message =~ m/$ack/) {
@@ -1021,12 +1019,12 @@ elsif ($basename eq 'smsack.cgi') {
                 print CMD "[".time()."] ACKNOWLEDGE_HOST_PROBLEM;".$host.";1;1;1;".$SenderNumber.";".$comment."\n";
             }
             close (CMD);
-        } 
+        }
         print LOG prettydate() . ' SMS sender verified\n';
-        httpOutput('ACCEPTED'); 
+        httpOutput('ACCEPTED');
     } else {
         print LOG prettydate() . ' SMS sender not verified\n';
-        httpOutput('NOT ACCEPTED'); 
+        httpOutput('NOT ACCEPTED');
     }
     print LOG " From=$SenderNumber Received=$received Status=$status Host=$host Service=$service MSG=\"$Message\"\n";
     close LOG unless *LOG eq *STDERR;
@@ -1048,9 +1046,9 @@ else {
 
 =item B<smsfinder.pl>
 
-    the Nagios 
-    - check plugin, 
-    - notification handler / sendSMS and 
+    the Nagios
+    - check plugin,
+    - notification handler / sendSMS and
     - ACKnowledgement addon / CGI handler
     for the MultitechSMSFinder
 
@@ -1062,7 +1060,7 @@ else {
 
 =item Depending on how it is called,
 
-    - Checks a Multitech SMSFinder and returns if it is connected 
+    - Checks a Multitech SMSFinder and returns if it is connected
         to the GSM Network and the level of signal strength.
     - send an SMS via a Multitech SMSFinder
     - handles a received SMS and sets the ACKnowledgement in Nagios
@@ -1203,23 +1201,23 @@ Corresponds to $NOTIFICATIONTYPE$
 
 =item *
 
-Prepare your system as described below, be well informed and (sort of) 
+Prepare your system as described below, be well informed and (sort of)
 remote control your Nagios via your mobile and a Multitech SMSFinder.
 
 =back
 
 =head2 How to reset/overrule a host/service state?
 
-Just prepend the notification SMS with "OK " and send it back to your SMSFinder. 
+Just prepend the notification SMS with "OK " and send it back to your SMSFinder.
 
 The host/service state will be set to OK and notifications enabled again.
 
 
 =head2 How to acknowledge a notified outage?
 
-Just prepend the notification SMS with "ACK " and send it back to your SMSFinder. 
+Just prepend the notification SMS with "ACK " and send it back to your SMSFinder.
 
-The host/service state will be acknowledged and notifications disabled 
+The host/service state will be acknowledged and notifications disabled
 until the host/service is fine again.
 
 
@@ -1229,13 +1227,13 @@ until the host/service is fine again.
 
 Configure the following in the web interface of your SMSFinder:
 
-1.a. Access for your Nagios server(s) on the 
+1.a. Access for your Nagios server(s) on the
 "Administration > Admin Access > Allowed Networks" page.
 
-1.b. define a SMS user on the 
+1.b. define a SMS user on the
 "SMS Services > Send SMS Users" page.
 
-1.c. switch on the HTTP send API on the 
+1.c. switch on the HTTP send API on the
 "SMS Services > SMS API > Send API" page.
 
 1.d. configure the HTTP receive API on the
@@ -1258,7 +1256,7 @@ Configure the following in the web interface of your SMSFinder:
  $USER16$=adminpass
 
 
-=head1 EXAMPLE for Nagios check configuration 
+=head1 EXAMPLE for Nagios check configuration
 
  # command definition to check SMSFinder via HTTP
  define command {
@@ -1276,7 +1274,7 @@ Configure the following in the web interface of your SMSFinder:
     #contact_groups     smsfinders
   }
 
-=head1 EXAMPLE for Nagios notification configuration 
+=head1 EXAMPLE for Nagios notification configuration
 
  define command {
     command_name    notify-host-by-sms
@@ -1335,5 +1333,5 @@ Configure the following in the web interface of your SMSFinder:
 
 
 
-# vim: ts=4 shiftwidth=4 softtabstop=4 
+# vim: ts=4 shiftwidth=4 softtabstop=4
 #backspace=indent,eol,start expandtab
