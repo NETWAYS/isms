@@ -687,7 +687,8 @@ if ($basename eq 'sendsms.pl' or $basename eq 'email2sms.pl') {
     my $offset = 0;
     $splitmax = 999 if ($splitmax == 0);
     while ($splitmax-- > 0 and length($message) > $offset) {
-        my $messagepart = urlencode(substr(justASCII($message),$offset,160));
+        my $messagepart = substr(justASCII($message),$offset,160);
+
         $offset += 160;
         if ($verbose) { print 'short clean message : ' . $messagepart . "\n"; }
         my $document;
