@@ -93,6 +93,7 @@ use Getopt::Long qw(:config no_ignore_case bundling);
 use File::Basename;
 use IO::Socket;
 use XML::Simple;
+use LWP::UserAgent;
 
 our @state = ('OK', 'WARNING', 'CRITICAL', 'UNKNOWN');
 
