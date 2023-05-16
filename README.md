@@ -1,38 +1,17 @@
 # iSMS Notifications
 
-#### Table of Contents
-
-1. [About](#about)
-2. [License](#license)
-3. [Support](#support)
-4. [Requirements](#requirements)
-5. [Installation](#installation)
-6. [Configuration](#configuration)
-7. [FAQ](#faq)
-
-## About
-
 This collection provides scripts for managing SMS notifications with Multitech iSMS (previously called SMSFinder).
-
-The hardware can be obtained in the [NETWAYS shop](https://www.netways.de/hardware/alarmierung/multitech/isms/).
 
 * Plugin `check_smsfinder.pl` which checks if iSMS is connected to the GSM network and its level of signal strength.
 * Notification handler `sendsms.pl` to send an SMS via Multitech iSMS.
 * Acknowledgement addon `smsack.cgi` and `email2sms.pl` to receive an SMS answer and set an acknowledgement in Icinga.
 
-## License
+## Required Perl Libraries  
 
-These plugins are licensed under the terms of the GNU General Public License.
-You will find a copy of this license in the COPYING file included in the source package.
-
-## Support
-
-Please head over to the [NETWAYS shop](https://www.netways.de/hardware/alarmierung/multitech/isms/).
-
-## Requirements
-
-* iSMS hardware
-* Perl modules: `Getopt::Long`, `File::Basename`, `IO::Socket`, `XML::Simple`
+* Getopt::Long
+* File::Basename
+* IO::Socket
+* XML::Simple`
 
 ## Installation
 
@@ -73,7 +52,6 @@ ln -s smsfinder.pl check_smsfinder.pl
 ln -s smsfinder.pl smsack.cgi
 ln -s smsfinder.pl email2sms.pl
 ```
-
 
 ## Configuration
 
@@ -337,4 +315,6 @@ Start below this block:
 # configure here to match your system setup
 ```
 
-
+# License
+These plugins are licensed under the terms of the GNU General Public License.
+You will find a copy of this license in the COPYING file included in the source package.
